@@ -2,35 +2,45 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>🏇 Đua ngựa STEM</title>
+<title>🏇 Đua ngựa STEM PRO</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body {
+  margin:0;
   font-family: Arial;
-  text-align: center;
   background: linear-gradient(to top, #87CEEB, #fff);
+  text-align:center;
 }
 
-h2 { margin: 10px; }
+h2 { margin:10px; }
 
 canvas {
-  background: #fff;
-  border: 3px solid black;
-  border-radius: 15px;
+  background:#fff;
+  border:3px solid black;
+  border-radius:15px;
 }
 
 #leaderboard {
-  margin-top: 10px;
-  font-size: 18px;
+  font-size:18px;
+  margin-top:10px;
+}
+
+button {
+  padding:10px 20px;
+  font-size:16px;
+  margin:5px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>🏇 CUỘC ĐUA NGỰA STEM</h2>
-<canvas id="game" width="900" height="500"></canvas>
+<h2>🏇 CUỘC ĐUA NGỰA STEM PRO</h2>
+
+<button onclick="resetGame()">🔄 Reset</button>
+
+<canvas id="game" width="1000" height="500"></canvas>
 
 <div id="leaderboard"></div>
 
@@ -38,7 +48,7 @@ canvas {
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
 
 <script>
-// 🔥 DÁN CONFIG FIREBASE
+// 🔥 CONFIG FIREBASE
 const firebaseConfig = {
   apiKey: "YOUR_KEY",
   authDomain: "YOUR_DOMAIN",
@@ -53,42 +63,76 @@ const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 let players = {};
-let finish = 800;
+let finish = 900;
+
+// màu random cho ngựa
+function getColor(name){
+  let hash = 0;
+  for(let i=0;i<name.length;i++) hash += name.charCodeAt(i);
+  return `hsl(${hash%360},70%,50%)`;
+}
 
 db.ref("players").on("value", snap=>{
   players = snap.val() || {};
 });
 
+// reset
+function resetGame(){
+  db.ref("players").set({});
+}
+
+// confetti
+function confetti(){
+  for(let i=0;i<30;i++){
+    ctx.fillStyle=`hsl(${Math.random()*360},100%,50%)`;
+    ctx.fillRect(Math.random()*1000,Math.random()*500,5,5);
+  }
+}
+
 function draw(){
-  ctx.clearRect(0,0,900,500);
+  ctx.clearRect(0,0,1000,500);
 
   let arr = Object.entries(players);
   arr.sort((a,b)=>b[1]-a[1]);
 
-  // vẽ vạch đích
-  ctx.fillStyle = "black";
+  // vạch đích
+  ctx.fillStyle="black";
   ctx.fillRect(finish,0,5,500);
 
   arr.forEach((p,index)=>{
     let name = p[0];
     let score = p[1];
 
-    let x = 50 + score * 5;
-    let y = 50 + index * 50;
+    let x = 50 + score*5;
+    let y = 50 + index*60;
 
-    // highlight top 1
+    // màu riêng
+    ctx.fillStyle = getColor(name);
+
+    // top 1 glow
     if(index===0){
-      ctx.fillStyle="gold";
-      ctx.fillRect(0,y-20,900,40);
+      ctx.shadowColor="gold";
+      ctx.shadowBlur=20;
+    } else {
+      ctx.shadowBlur=0;
     }
 
-    ctx.fillStyle="black";
     ctx.fillText("🐎", x, y);
     ctx.fillText(name, 10, y);
+
+    ctx.shadowBlur=0;
+
+    // về đích
+    if(x>=finish){
+      confetti();
+      ctx.fillStyle="green";
+      ctx.font="30px Arial";
+      ctx.fillText("🏆 "+name+" CHIẾN THẮNG!",300,100);
+    }
   });
 
   // bảng xếp hạng
-  let html = "<b>🏆 TOP 3:</b><br>";
+  let html="<b>🏆 TOP 3:</b><br>";
   arr.slice(0,3).forEach((p,i)=>{
     html += `${i+1}. ${p[0]} (${p[1]})<br>`;
   });
