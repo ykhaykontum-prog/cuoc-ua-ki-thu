@@ -49,12 +49,25 @@ button {
 
 <script>
 // 🔥 CONFIG FIREBASE
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  databaseURL: "YOUR_DB",
-  projectId: "YOUR_ID"
-};
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB5c8p22RHw2gBoLGIDrvucWgHNbKBJUtA",
+    authDomain: "dua-ngua-ff60c.firebaseapp.com",
+    projectId: "dua-ngua-ff60c",
+    storageBucket: "dua-ngua-ff60c.firebasestorage.app",
+    messagingSenderId: "812763118214",
+    appId: "1:812763118214:web:abe6456c26751a4a8f2f07"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
